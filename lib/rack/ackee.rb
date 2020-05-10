@@ -3,15 +3,15 @@ require 'user_agent_parser'
 
 module Rack
   class Ackee < Struct.new :app, :options
-    def initialize(app)
-      @app = app
-    end
+//    def initialize(app)
+  //    @app = app
+//    end
 
     def call(env)
-      status, header, body = @app.call env
+      status, header, body = app.call env
       header = ::Rack::Utils::HeaderHash.new header
       if env['DNT'] == 1
-        @app.call(env)
+        app.call(env)
         //[status, header, body]
       else
         send_data(env, options[:server], options[:domain_id])
