@@ -2,42 +2,37 @@ require 'net/http'
 require 'user_agent_parser'
 
 module Rack
-  class Ackee < Struct.new :app, :options
-#    def initialize(app)
-#      @app = app
-#    end
+  class Ackee
+
+    def initialize(app, options={})
+      @app = app
+      @server = options[:server]
+      @domain_id = options[:domain]
+    end
 
     def call(env)
-      status, header, body = app.call env
-      header = ::Rack::Utils::HeaderHash.new header
-      if env['DNT'] == 1
-        app.call(env)
-        //[status, header, body]
-      else
-        send_data(env, options[:server], options[:domain_id])
-
-        [status, header, body]
+      unless env['DNT'] == 1
+        send_data(env, @server, @domain_id)
       end
+      @app.call(env)
     end
 
-    def self.setup
-      yield self
-    end
+    private
 
     def send_data(env, server, domain_id)
       ua_header = env['HTTP_USER_AGENT']
-      ua = UserAgentParser.parse(ua_header)
+      user_agent = UserAgentParser.parse(ua_header)
       data = {
             "siteLocation": env['REQUEST_URI'],
             "siteReferrer": env['HTTP_REFERER'],
             "deviceName": user_agent.device.model,
             "deviceManufacturer": user_agent.device.brand,
             "osName": user_agent.os.family,
-            "osVersion": user_agent.os.version_string,
-            "browserName": user_agent.browser.family,
-            "browserVersion": user_agent.browser.version_string,
+            "osVersion": user_agent.os.version.to_s,
+            "browserName": user_agent.family,
+            "browserVersion": user_agent.version.to_s
         }
-      url = "https://#{server}/domains/#{domain_id}/records"
+      url = "https://#{@server}/domains/#{@domain_id}/records"
       Net::HTTP.post URI(url), data, "Content-Type" => "application/json"
     end
   end
