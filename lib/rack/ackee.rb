@@ -3,9 +3,9 @@ require 'user_agent_parser'
 
 module Rack
   class Ackee < Struct.new :app, :options
-//    def initialize(app)
-  //    @app = app
-//    end
+#    def initialize(app)
+#      @app = app
+#    end
 
     def call(env)
       status, header, body = app.call env
