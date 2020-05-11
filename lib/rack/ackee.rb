@@ -12,14 +12,14 @@ module Rack
 
     def call(env)
       unless env['DNT'] == 1
-        send_data(env, @server, @domain_id)
+        send_data(env)
       end
       @app.call(env)
     end
 
     private
 
-    def send_data(env, server, domain_id)
+    def send_data(env)
       ua_header = env['HTTP_USER_AGENT']
       user_agent = UserAgentParser.parse(ua_header)
       data = {
