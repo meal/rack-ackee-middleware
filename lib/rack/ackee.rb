@@ -29,7 +29,7 @@ module Rack
       ua_header = env['HTTP_USER_AGENT']
       user_agent = UserAgentParser.parse(ua_header)
       data = {
-            "siteLocation": env['REQUEST_URI'],
+            "siteLocation": env.url,
             "siteReferrer": env['HTTP_REFERER'],
             "deviceName": user_agent.device.model,
             "deviceManufacturer": user_agent.device.brand,
