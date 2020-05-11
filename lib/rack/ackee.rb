@@ -15,8 +15,10 @@ module Rack
       unless env['DNT'] == 1
         puts "Server #{@server}"
         send_data(env)
+        @app.call(env)
+      else
+        @app.call(env)
       end
-      @app.call(env)
     end
 
     private
