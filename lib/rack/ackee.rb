@@ -37,7 +37,7 @@ module Rack
             "osVersion": user_agent.os.version.to_s,
             "browserName": user_agent.family,
             "browserVersion": user_agent.version.to_s
-        }
+        }.to_json
       url = "#{@server}/domains/#{@domain_id}/records"
       puts url
       Net::HTTP.post URI(url), data, "Content-Type" => "application/json"
