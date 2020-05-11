@@ -8,10 +8,12 @@ module Rack
       @app = app
       @server = options[:server]
       @domain_id = options[:domain]
+      puts options
     end
 
     def call(env)
       unless env['DNT'] == 1
+        puts "Server #{@server}"
         send_data(env)
       end
       @app.call(env)
@@ -37,3 +39,4 @@ module Rack
     end
   end
 end
+  
