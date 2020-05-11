@@ -13,8 +13,12 @@ module Rack
     def call(env)
       unless env['DNT'] == 1
         send_data(env)
+        status, headers, response = @app.call(env)
+        [status, headers, response]
+      else
+        status, headers, response = @app.call(env)
+        [status, headers, response]
       end
-      @app.call(env)
     end
 
     private
@@ -22,17 +26,18 @@ module Rack
     def send_data(env)
       ua_header = env['HTTP_USER_AGENT']
       user_agent = UserAgentParser.parse(ua_header)
+      req = Rack::Request.new(env)
       data = {
-            "siteLocation": env['REQUEST_URI'],
-            "siteReferrer": env['HTTP_REFERER'],
-            "deviceName": user_agent.device.model,
-            "deviceManufacturer": user_agent.device.brand,
-            "osName": user_agent.os.family,
-            "osVersion": user_agent.os.version.to_s,
-            "browserName": user_agent.family,
-            "browserVersion": user_agent.version.to_s
-        }
-      url = "https://#{@server}/domains/#{@domain_id}/records"
+        "siteLocation": req.url,
+        "siteReferrer": env['HTTP_REFERER'],
+        "deviceName": user_agent.device.model,
+        "deviceManufacturer": user_agent.device.brand,
+        "osName": user_agent.os.family,
+        "osVersion": user_agent.os.version.to_s,
+        "browserName": user_agent.family,
+        "browserVersion": user_agent.version.to_s
+      }.to_json
+      url = "#{@server}/domains/#{@domain_id}/records"
       Net::HTTP.post URI(url), data, "Content-Type" => "application/json"
     end
   end
